@@ -1,0 +1,2 @@
+BLOCK_SIZE = 4
+BATCH_SIZE = 3

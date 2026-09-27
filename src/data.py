@@ -1,5 +1,8 @@
 from src.tokenizer import tokenize, build_vocab, encode, create_sequences
 import torch
+from torch.utils.data import DataLoader
+from src.dataset import TextDataset
+from src.config import BLOCK_SIZE, BATCH_SIZE
 
 def load_text(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
@@ -46,3 +49,16 @@ def create_chunks(inputs, targets, block_size):
         target_chunks.append(targets[i:i+block_size])
 
     return input_chunks, target_chunks
+
+def create_dataloader(file_path, block_size=BLOCK_SIZE, batch_size=BATCH_SIZE):
+    inputs, targets, vocab = prepare_data(file_path)
+    input_chunks, target_chunks = create_chunks(inputs, targets, block_size)
+    
+    dataset = TextDataset(input_chunks, target_chunks)
+
+    loader = DataLoader(dataset, 
+                        batch_size=batch_size, 
+                        shuffle=True, 
+                        drop_last=True)
+
+    return loader, vocab
