@@ -25,3 +25,13 @@ def create_sequences(token_ids):
     targets =  token_ids[1:]
 
     return inputs, targets
+
+# for text generation:
+
+def build_reverse_vocab(vocab):
+    reverse_vocab = {id:token for token, id in vocab.items()}
+
+    return reverse_vocab
+
+def decode(token_ids, reverse_vocab):
+    return " ".join([reverse_vocab[id] for id in token_ids])
