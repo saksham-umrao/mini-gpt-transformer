@@ -62,3 +62,41 @@ def create_dataloader(file_path, block_size=BLOCK_SIZE, batch_size=BATCH_SIZE):
                         drop_last=True)
 
     return loader, vocab
+
+def create_train_val_dataloaders(file_path, block_size=BLOCK_SIZE, batch_size=BATCH_SIZE, val_ratio=0.2):
+    tokens = load_tokens(file_path)
+
+    split_index = int((1-val_ratio)*len(tokens))
+
+    train_tokens = tokens[:split_index]
+    val_tokens = tokens[split_index:]
+
+    vocab = build_vocab(train_tokens)
+
+    train_ids = encode(train_tokens, vocab)
+    val_ids = encode(val_tokens, vocab)
+
+    train_inputs, train_targets = create_sequences(train_ids)
+    val_inputs, val_targets = create_sequences(val_ids)
+
+    train_inputs = torch.tensor(train_inputs, dtype=torch.long)
+    train_targets = torch.tensor(train_targets, dtype=torch.long)
+    val_inputs = torch.tensor(val_inputs, dtype=torch.long)
+    val_targets = torch.tensor(val_targets, dtype=torch.long)
+
+    train_input_chunks, train_target_chunks = create_chunks(train_inputs, train_targets, block_size)
+    val_input_chunks, val_target_chunks = create_chunks(val_inputs, val_targets, block_size)
+
+    train_dataset = TextDataset(train_input_chunks, train_target_chunks)
+    val_dataset = TextDataset(val_input_chunks, val_target_chunks)
+
+    train_loader = DataLoader(train_dataset,
+                              batch_size = batch_size, 
+                              shuffle=True,
+                              drop_last=True)
+    val_loader = DataLoader(val_dataset, 
+                            batch_size=batch_size,
+                            shuffle=False, 
+                            drop_last=False)
+
+    return train_loader, val_loader, vocab
