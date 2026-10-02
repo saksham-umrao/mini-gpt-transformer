@@ -1,8 +1,11 @@
+from src.utils import set_seed
 import torch
 import torch.nn.functional as F
 import copy
 from src.checkpoint import save_checkpoint
 import math
+
+set_seed(27)
 
 def calculate_loss(logits, targets):
     batch_size, sequence_length, vocab_size = logits.shape
